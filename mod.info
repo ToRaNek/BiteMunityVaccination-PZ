@@ -1,7 +1,10 @@
+# mod.info
+# Configuration du mod système de vaccination - Version BiteMunity
+
 name=BiteMunity Vaccination System
 id=BiteMunityVaccination
-description=Advanced vaccination system for BiteMunity mod - Create vaccines from immune blood
+description=Système de vaccination avancé permettant de créer des vaccins à partir du sang de joueurs immunisés BiteMunity. Extraction de sang, centrifugation, purification, vaccination avec 20% de succès, effets secondaires, cooldowns. REQUIERT le mod BiteMunity pour fonctionner.
 url=
-modversion=1.0.0
+modversion=1.2.0
 pzversion=41.78
 require=BiteMunity

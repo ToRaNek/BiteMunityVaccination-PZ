@@ -1,5 +1,5 @@
--- VaccinationCore.lua
--- Logique principale du système de vaccination
+-- media/lua/shared/VaccinationCore.lua
+-- Logique principale du système de vaccination - Version BiteMunity compatible
 
 VaccinationCore = VaccinationCore or {}
 
@@ -13,13 +13,15 @@ function VaccinationCore.canExtractBlood(donor, extractor)
         return false, "Joueur invalide"
     end
     
-    -- Vérifier le niveau de médecin de l'extracteur
-    local doctorLevel = extractor:getPerkLevel(Perks.Doctor)
-    if doctorLevel < VaccinationConfig.REQUIRED_DOCTOR_LEVEL then
-        return false, VaccinationConfig.MESSAGES.EXTRACTION_FAILED_LEVEL
+    -- Vérifier le niveau de médecin de l'extracteur (sauf si c'est pour lui-même)
+    if donor ~= extractor then
+        local doctorLevel = extractor:getPerkLevel(Perks.Doctor)
+        if doctorLevel < VaccinationConfig.REQUIRED_DOCTOR_LEVEL then
+            return false, VaccinationConfig.MESSAGES.EXTRACTION_FAILED_LEVEL
+        end
     end
     
-    -- Vérifier si le donneur est naturellement immunisé
+    -- Vérifier si le donneur est naturellement immunisé (utilise BiteMunity)
     if not BiteMunityCore or not BiteMunityCore.isPlayerPermanentlyImmune(donor) then
         return false, VaccinationConfig.MESSAGES.EXTRACTION_FAILED_NOT_IMMUNE
     end
@@ -166,7 +168,7 @@ function VaccinationCore.canVaccinate(patient, doctor)
         return false, "Joueur invalide"
     end
     
-    -- Vérifier si le patient est déjà immunisé
+    -- Vérifier si le patient est déjà immunisé (utilise BiteMunity)
     if BiteMunityCore and BiteMunityCore.isPlayerPermanentlyImmune(patient) then
         return false, VaccinationConfig.MESSAGES.VACCINATION_FAILED_ALREADY_IMMUNE
     end
@@ -211,7 +213,7 @@ function VaccinationCore.administerVaccine(patient, doctor, vaccine)
     local isSuccess = successChance <= VaccinationConfig.VACCINATION_SUCCESS_CHANCE
     
     if isSuccess then
-        -- Vaccination réussie - le patient devient immunisé
+        -- Vaccination réussie - le patient devient immunisé (utilise BiteMunity)
         if BiteMunityCore and BiteMunityCore.setPlayerPermanentImmunity then
             BiteMunityCore.setPlayerPermanentImmunity(patient, true)
         end

@@ -1,21 +1,18 @@
--- VaccinationClient.lua
--- Gestion côté client du système de vaccination
-
--- Import des modules partagés (sans require car ils sont chargés directement)
--- VaccinationCore, VaccinationConfig et VaccinationTimedActions sont chargés automatiquement
+-- media/lua/client/VaccinationClient.lua
+-- Gestion côté client du système de vaccination - Version BiteMunity compatible
 
 VaccinationClient = VaccinationClient or {}
 
 -- Fonction pour extraire du sang (menu contextuel)
 function VaccinationClient.extractBlood(playerObj, targetPlayer)
-    if playerObj == getPlayer() then
+    if playerObj == getSpecificPlayer(0) then
         VaccinationCore.extractBlood(targetPlayer, playerObj)
     end
 end
 
 -- Fonction pour administrer un vaccin (menu contextuel)
 function VaccinationClient.administerVaccine(doctorObj, patientPlayer)
-    if doctorObj == getPlayer() then
+    if doctorObj == getSpecificPlayer(0) then
         local inventory = doctorObj:getInventory()
         local vaccine = inventory:getFirstTypeRecurse("BiteMunityVaccination.AntiZombieVaccine")
         
@@ -24,6 +21,13 @@ function VaccinationClient.administerVaccine(doctorObj, patientPlayer)
         else
             doctorObj:Say("Je n'ai pas de vaccin sur moi.")
         end
+    end
+end
+
+-- Fonction pour permettre au joueur de s'extraire du sang à lui-même
+function VaccinationClient.extractOwnBlood(player)
+    if player == getSpecificPlayer(0) then
+        VaccinationCore.extractBlood(player, player)
     end
 end
 
@@ -71,27 +75,48 @@ function VaccinationClient.purifySerum(player, serumItem)
     ISTimedActionQueue.add(ISPurificationAction:new(player, serumItem, microscope, chemicals))
 end
 
--- Gestionnaire de menu contextuel pour les joueurs
-function VaccinationClient.onFillWorldObjectContextMenu(player, context, worldObjects, test)
+-- Gestionnaire de menu contextuel pour les joueurs - VERSION BITEMUNITY
+function VaccinationClient.onFillWorldObjectContextMenu(playerNum, context, worldObjects, test)
     if test then return end
-    if player ~= getPlayer() then return end
     
-    for _, obj in ipairs(worldObjects) do
-        if instanceof(obj, "IsoPlayer") then
-            local targetPlayer = obj
-            if targetPlayer ~= player then
-                -- Vérifier si on peut extraire du sang
-                local canExtract, _ = VaccinationCore.canExtractBlood(targetPlayer, player)
-                if canExtract then
-                    context:addOption("Extraire du sang", player, VaccinationClient.extractBlood, targetPlayer)
+    local player = getSpecificPlayer(playerNum)
+    if not player then return end
+    
+    -- Vérifier si BiteMunity est chargé
+    if not BiteMunityCore then
+        print("[VaccinationSystem] ERREUR: BiteMunity n'est pas chargé!")
+        return
+    end
+    
+    -- Vérifier si le joueur peut s'extraire du sang à lui-même
+    local canExtractSelf, _ = VaccinationCore.canExtractBlood(player, player)
+    if canExtractSelf and BiteMunityCore.isPlayerPermanentlyImmune(player) then
+        context:addOption("M'extraire du sang", player, VaccinationClient.extractOwnBlood)
+    end
+    
+    -- Chercher d'autres joueurs dans la zone
+    for i = 0, getNumActivePlayers() - 1 do
+        local otherPlayer = getSpecificPlayer(i)
+        if otherPlayer and otherPlayer ~= player then
+            -- Vérifier la distance (2 cases maximum)
+            local distance = math.abs(otherPlayer:getX() - player:getX()) + 
+                           math.abs(otherPlayer:getY() - player:getY())
+            
+            if distance <= 2 and otherPlayer:getZ() == player:getZ() then
+                local targetName = otherPlayer:getDisplayName() or "Joueur"
+                
+                -- Vérifier si on peut extraire du sang de ce joueur (doit être immunisé BiteMunity)
+                local canExtract, _ = VaccinationCore.canExtractBlood(otherPlayer, player)
+                if canExtract and BiteMunityCore.isPlayerPermanentlyImmune(otherPlayer) then
+                    context:addOption("Extraire du sang de " .. targetName, player, VaccinationClient.extractBlood, otherPlayer)
                 end
                 
-                -- Vérifier si on peut vacciner
-                local canVaccinate, _ = VaccinationCore.canVaccinate(targetPlayer, player)
+                -- Vérifier si on peut vacciner ce joueur
+                local canVaccinate, _ = VaccinationCore.canVaccinate(otherPlayer, player)
                 if canVaccinate then
                     local vaccine = player:getInventory():getFirstTypeRecurse("BiteMunityVaccination.AntiZombieVaccine")
                     if vaccine then
-                        context:addOption("Administrer le vaccin", player, VaccinationClient.administerVaccine, targetPlayer)
+                        context:addOption("Vacciner " .. targetName, player, VaccinationClient.administerVaccine, otherPlayer)
                     end
                 end
             end
@@ -100,10 +125,12 @@ function VaccinationClient.onFillWorldObjectContextMenu(player, context, worldOb
 end
 
 -- Gestionnaire de menu contextuel pour les items
-function VaccinationClient.onFillInventoryObjectContextMenu(player, context, items)
-    if player ~= getPlayer() then return end
+function VaccinationClient.onFillInventoryObjectContextMenu(playerNum, context, items)
+    local player = getSpecificPlayer(playerNum)
+    if not player then return end
     
-    for _, item in ipairs(items) do
+    for i = 1, #items do
+        local item = items[i]
         if item and item.getFullType then
             local itemType = item:getFullType()
             
@@ -120,7 +147,7 @@ end
 function VaccinationClient.onServerCommand(module, command, args)
     if module ~= "VaccinationSystem" then return end
     
-    local player = getPlayer()
+    local player = getSpecificPlayer(0)
     if not player then return end
     
     if command == "VaccinationSuccess" then
@@ -135,7 +162,7 @@ end
 
 -- Vérification périodique des items expirés
 function VaccinationClient.checkExpiredItems()
-    local player = getPlayer()
+    local player = getSpecificPlayer(0)
     if not player then return end
     
     local inventory = player:getInventory()
@@ -169,12 +196,18 @@ end
 
 -- Fonction d'initialisation du client
 function VaccinationClient.init()
+    -- Vérifier que BiteMunity est bien chargé
+    if not BiteMunityCore then
+        print("[VaccinationSystem] ERREUR: BiteMunity n'est pas disponible! Assurez-vous que le mod BiteMunity est activé.")
+        return
+    end
+    
     Events.OnFillWorldObjectContextMenu.Add(VaccinationClient.onFillWorldObjectContextMenu)
     Events.OnFillInventoryObjectContextMenu.Add(VaccinationClient.onFillInventoryObjectContextMenu)
     Events.OnServerCommand.Add(VaccinationClient.onServerCommand)
     Events.EveryTenMinutes.Add(VaccinationClient.checkExpiredItems)
     
-    print("[VaccinationSystem] Client initialized")
+    print("[VaccinationSystem] Client initialized with BiteMunity integration")
 end
 
 -- Initialiser le client

@@ -1,5 +1,5 @@
--- VaccinationConfig.lua
--- Configuration pour le système de vaccination
+-- media/lua/shared/VaccinationConfig.lua
+-- Configuration pour le système de vaccination - Version corrigée
 
 VaccinationConfig = VaccinationConfig or {}
 
@@ -28,26 +28,26 @@ VaccinationConfig.MIN_GLOVES_CONDITION = 0.8   -- 80%
 
 -- Messages
 VaccinationConfig.MESSAGES = {
-    EXTRACTION_SUCCESS = "Extraction de sang réussie. Le donneur doit maintenant se reposer.",
-    EXTRACTION_FAILED_LEVEL = "Niveau de médecin insuffisant (niveau 6 requis).",
-    EXTRACTION_FAILED_COOLDOWN = "Ce donneur a déjà donné son sang récemment (7 jours requis).",
-    EXTRACTION_FAILED_NOT_IMMUNE = "Ce joueur n'est pas naturellement immunisé.",
-    EXTRACTION_FAILED_EQUIPMENT = "Équipement médical manquant ou en mauvais état.",
-    EXTRACTION_INFECTION = "Infection due à un équipement non stérilisé !",
-    
-    VACCINATION_SUCCESS = "Vaccination réussie ! Vous êtes maintenant immunisé.",
-    VACCINATION_FAILED = "Je ne me sens pas bien... La vaccination a échoué.",
+    EXTRACTION_SUCCESS = "Extraction de sang reussie. Le donneur doit maintenant se reposer.",
+    EXTRACTION_FAILED_LEVEL = "Niveau de medecin insuffisant (niveau 6 requis).",
+    EXTRACTION_FAILED_COOLDOWN = "Ce donneur a deja donne son sang recemment (7 jours requis).",
+    EXTRACTION_FAILED_NOT_IMMUNE = "Ce joueur n'est pas naturellement immunise.",
+    EXTRACTION_FAILED_EQUIPMENT = "Equipement medical manquant ou en mauvais etat.",
+    EXTRACTION_INFECTION = "Infection due a un equipement non sterilise !",
+
+    VACCINATION_SUCCESS = "Vaccination reussie ! Vous etes maintenant immunise.",
+    VACCINATION_FAILED = "Je ne me sens pas bien... La vaccination a echoue.",
     VACCINATION_RECOVERY = "Je me sens mieux maintenant.",
-    VACCINATION_FAILED_COOLDOWN = "Ce patient a été vacciné récemment (3 jours requis).",
-    VACCINATION_FAILED_ALREADY_IMMUNE = "Ce patient est déjà immunisé.",
-    
-    CENTRIFUGE_START = "Démarrage de la centrifugation...",
-    CENTRIFUGE_COMPLETE = "Centrifugation terminée. Sérum sanguin obtenu.",
-    PURIFICATION_START = "Démarrage de la purification...",
-    PURIFICATION_COMPLETE = "Purification terminée. Vaccin prêt.",
-    
-    EXPIRED_BLOOD = "Le sang a expiré et n'est plus utilisable.",
-    EXPIRED_SERUM = "Le sérum a expiré et n'est plus utilisable.",
+    VACCINATION_FAILED_COOLDOWN = "Ce patient a ete vaccine recemment (3 jours requis).",
+    VACCINATION_FAILED_ALREADY_IMMUNE = "Ce patient est deja immunise.",
+
+    CENTRIFUGE_START = "Demarrage de la centrifugation...",
+    CENTRIFUGE_COMPLETE = "Centrifugation terminee. Serum sanguin obtenu.",
+    PURIFICATION_START = "Demarrage de la purification...",
+    PURIFICATION_COMPLETE = "Purification terminee. Vaccin pret.",
+
+    EXPIRED_BLOOD = "Le sang a expire et n'est plus utilisable.",
+    EXPIRED_SERUM = "Le serum a expire et n'est plus utilisable.",
 }
 
 -- Effets négatifs de la vaccination échouée
@@ -58,7 +58,7 @@ VaccinationConfig.NEGATIVE_EFFECTS = {
     {stat = "Weakness", value = true, duration = 24}
 }
 
--- Validation des équipements requis
+-- Validation des équipements requis avec seringue stérilisée
 VaccinationConfig.REQUIRED_EXTRACTION_ITEMS = {
     {type = "Base.AlcoholWipes", condition = 0.1},
     {type = "BiteMunityVaccination.SterilizedSyringe", condition = 0.9},
@@ -72,53 +72,116 @@ VaccinationConfig.REQUIRED_EXTRACTION_ITEMS_RISKY = {
     {type = "Base.Gloves_Surgical", condition = 0.8}
 }
 
+-- Équipement minimal pour auto-extraction (moins strict)
+VaccinationConfig.REQUIRED_SELF_EXTRACTION_ITEMS = {
+    {type = "BiteMunityVaccination.MedicalSyringe", condition = 0.5},
+    {type = "Base.AlcoholWipes", condition = 0.1, optional = true}
+}
+
 function VaccinationConfig.getGameTimeHours()
     local gameTime = getGameTime()
     if gameTime then
-        local worldAge = gameTime:getWorldAgeHours() or 0
-        return worldAge
+        local worldAge = gameTime:getWorldAgeHours()
+        if worldAge then
+            return worldAge
+        end
     end
     return 0
 end
 
 function VaccinationConfig.isEquipmentSterilized(player)
-    if not player then return false end
+    if not player then
+        return false
+    end
+
     local inventory = player:getInventory()
-    if not inventory then return false end
-    
+    if not inventory then
+        return false
+    end
+
     -- Vérifier d'abord avec seringue stérilisée
     local hasSterilizedSyringe = false
-    for _, item in ipairs(VaccinationConfig.REQUIRED_EXTRACTION_ITEMS) do
+    local hasOtherItems = true
+
+    for i = 1, #VaccinationConfig.REQUIRED_EXTRACTION_ITEMS do
+        local item = VaccinationConfig.REQUIRED_EXTRACTION_ITEMS[i]
         local foundItem = inventory:getFirstTypeRecurse(item.type)
-        if item.type == "BiteMunityVaccination.SterilizedSyringe" and foundItem and foundItem:getCondition() >= item.condition then
-            hasSterilizedSyringe = true
-        elseif item.type ~= "BiteMunityVaccination.SterilizedSyringe" then
+        if item.type == "BiteMunityVaccination.SterilizedSyringe" then
+            if foundItem and foundItem:getCondition() >= item.condition then
+                hasSterilizedSyringe = true
+            end
+        else
+            if not foundItem or foundItem:getCondition() < item.condition then
+                hasOtherItems = false
+                break
+            end
+        end
+    end
+
+    if hasSterilizedSyringe and hasOtherItems then
+        return true
+    end
+
+    -- Sinon vérifier avec seringue normale (moins sûr)
+    local hasNormalSyringe = false
+    local hasOtherItemsRisky = true
+
+    for i = 1, #VaccinationConfig.REQUIRED_EXTRACTION_ITEMS_RISKY do
+        local item = VaccinationConfig.REQUIRED_EXTRACTION_ITEMS_RISKY[i]
+        local foundItem = inventory:getFirstTypeRecurse(item.type)
+        if item.type == "BiteMunityVaccination.MedicalSyringe" then
+            if foundItem and foundItem:getCondition() >= item.condition then
+                hasNormalSyringe = true
+            end
+        else
+            if not foundItem or foundItem:getCondition() < item.condition then
+                hasOtherItemsRisky = false
+                break
+            end
+        end
+    end
+
+    if hasNormalSyringe and hasOtherItemsRisky then
+        return "risky"
+    end
+
+    return false
+end
+
+function VaccinationConfig.canSelfExtract(player)
+    if not player then
+        return false
+    end
+
+    local inventory = player:getInventory()
+    if not inventory then
+        return false
+    end
+
+    -- Vérifier l'équipement minimal pour auto-extraction
+    for i = 1, #VaccinationConfig.REQUIRED_SELF_EXTRACTION_ITEMS do
+        local item = VaccinationConfig.REQUIRED_SELF_EXTRACTION_ITEMS[i]
+        if not item.optional then
+            local foundItem = inventory:getFirstTypeRecurse(item.type)
             if not foundItem or foundItem:getCondition() < item.condition then
                 return false
             end
         end
     end
-    
-    if hasSterilizedSyringe then
-        return true
-    end
-    
-    -- Sinon vérifier avec seringue normale (moins sûr)
-    for _, item in ipairs(VaccinationConfig.REQUIRED_EXTRACTION_ITEMS_RISKY) do
-        local foundItem = inventory:getFirstTypeRecurse(item.type)
-        if not foundItem or foundItem:getCondition() < item.condition then
-            return false
-        end
-    end
-    
-    return "risky" -- Indique que l'équipement n'est pas stérilisé
+
+    return true
 end
 
 function VaccinationConfig.hasSterilizedEquipment(player)
-    if not player then return false end
+    if not player then
+        return false
+    end
+
     local inventory = player:getInventory()
-    if not inventory then return false end
-    
+    if not inventory then
+        return false
+    end
+
     local sterilizedSyringe = inventory:getFirstTypeRecurse("BiteMunityVaccination.SterilizedSyringe")
     return sterilizedSyringe and sterilizedSyringe:getCondition() >= 0.9
 end

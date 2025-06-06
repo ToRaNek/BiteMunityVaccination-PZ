@@ -1,3 +1,6 @@
+// media/scripts/distributions.txt
+// Distribution des items dans le monde - Version corrigée
+
 module BiteMunityVaccination
 {
     imports
@@ -8,63 +11,79 @@ module BiteMunityVaccination
     item MedicalSyringe
     {
         DistributionTable = {
-            MedicalStorageOutfit = 20,
-            HospitalSurgery = 30,
-            MedicalClinic = 25,
-            AmbulanceTrunk = 15,
-            FireStorageOutfit = 10,
-            DrugLabGuns = 5,
-            PoliceStorageOutfit = 8,
-            GigamartPharmacy = 12,
-            PharmacyCosmetics = 15,
+            MedicalStorageOutfit = 30,
+            HospitalSurgery = 40,
+            MedicalClinic = 35,
+            AmbulanceTrunk = 25,
+            FireStorageOutfit = 15,
+            DrugLabGuns = 10,
+            PoliceStorageOutfit = 12,
+            GigamartPharmacy = 20,
+            PharmacyCosmetics = 25,
+            DoctorBag = 50,
+        }
+    }
+
+    item SterilizedSyringe
+    {
+        DistributionTable = {
+            MedicalStorageOutfit = 10,
+            HospitalSurgery = 20,
+            MedicalClinic = 15,
+            AmbulanceTrunk = 8,
+            DoctorBag = 25,
         }
     }
 
     item Centrifuge
     {
         DistributionTable = {
-            HospitalSurgery = 5,
-            MedicalClinic = 3,
-            OfficeDesk = 1,
-            CollegeChemistry = 8,
-            SchoolChemistry = 4,
+            HospitalSurgery = 8,
+            MedicalClinic = 5,
+            OfficeDesk = 2,
+            CollegeChemistry = 12,
+            SchoolChemistry = 6,
+            UniversityClassroom = 4,
         }
     }
 
     item LabMicroscope
     {
         DistributionTable = {
-            HospitalSurgery = 8,
-            MedicalClinic = 5,
-            CollegeChemistry = 15,
-            SchoolChemistry = 10,
-            OfficeDesk = 2,
+            HospitalSurgery = 12,
+            MedicalClinic = 8,
+            CollegeChemistry = 20,
+            SchoolChemistry = 15,
+            OfficeDesk = 3,
+            UniversityClassroom = 10,
         }
     }
 
     item ChemicalReagents
     {
         DistributionTable = {
-            MedicalStorageOutfit = 15,
-            HospitalSurgery = 20,
-            MedicalClinic = 18,
-            CollegeChemistry = 25,
-            SchoolChemistry = 15,
-            DrugLabGuns = 10,
-            GigamartPharmacy = 8,
+            MedicalStorageOutfit = 20,
+            HospitalSurgery = 25,
+            MedicalClinic = 22,
+            CollegeChemistry = 30,
+            SchoolChemistry = 20,
+            DrugLabGuns = 15,
+            GigamartPharmacy = 12,
+            UniversityClassroom = 8,
         }
     }
 
     item DisinfectantAlcohol
     {
         DistributionTable = {
-            MedicalStorageOutfit = 25,
-            HospitalSurgery = 30,
-            MedicalClinic = 28,
-            AmbulanceTrunk = 20,
-            GigamartPharmacy = 15,
-            PharmacyCosmetics = 18,
-            BathroomCabinet = 5,
+            MedicalStorageOutfit = 35,
+            HospitalSurgery = 40,
+            MedicalClinic = 38,
+            AmbulanceTrunk = 25,
+            GigamartPharmacy = 20,
+            PharmacyCosmetics = 25,
+            BathroomCabinet = 8,
+            DoctorBag = 30,
         }
     }
 }

@@ -1,3 +1,6 @@
+// media/scripts/items.txt
+// Définition des items pour le système de vaccination - Version corrigée
+
 module BiteMunityVaccination
 {
     imports
