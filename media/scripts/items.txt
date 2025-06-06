@@ -1,0 +1,163 @@
+module BiteMunityVaccination
+{
+    imports
+    {
+        Base
+    }
+
+    item MedicalSyringe
+    {
+        Weight = 0.1,
+        Type = Normal,
+        DisplayName = Seringue Médicale,
+        Icon = Syringe,
+        StaticModel = Syringe,
+        WorldStaticModel = Syringe,
+        ConditionLowerChanceOneIn = 20,
+        ConditionMax = 10,
+        Categories = Medical,
+        CanBandage = false,
+        BandageType = Standard,
+        Tags = Medical;Sterilizable,
+        Tooltip = Tooltip_MedicalSyringe,
+        UseDelta = 0.1,
+        UseWhileEquipped = false,
+        CanStoreWater = false,
+        MetalValue = 5,
+    }
+
+    item SterilizedSyringe
+    {
+        Weight = 0.1,
+        Type = Normal,
+        DisplayName = Seringue Stérilisée,
+        Icon = Syringe,
+        StaticModel = Syringe,
+        WorldStaticModel = Syringe,
+        ConditionLowerChanceOneIn = 50,
+        ConditionMax = 10,
+        Categories = Medical,
+        CanBandage = false,
+        BandageType = Standard,
+        Tags = Medical;Sterile,
+        Tooltip = Tooltip_SterilizedSyringe,
+        UseDelta = 0.05,
+        UseWhileEquipped = false,
+        MetalValue = 5,
+    }
+
+    item ImmuneBlood
+    {
+        Weight = 0.1,
+        Type = Normal,
+        DisplayName = Sang Immunisé,
+        Icon = ImmuneBlood,
+        StaticModel = FlaskEmpty,
+        WorldStaticModel = FlaskEmpty,
+        DaysFresh = 1,
+        DaysTotallyRotten = 1,
+        ReplaceOnUse = Base.Flask,
+        UseEndurance = false,
+        Categories = Medical,
+        CustomContextMenu = Centrifuger,
+        Tags = Medical;Vaccine;Blood,
+        Tooltip = Tooltip_ImmuneBlood,
+    }
+
+    item BloodSerum
+    {
+        Weight = 0.1,
+        Type = Normal,
+        DisplayName = Sérum Sanguin,
+        Icon = BloodSerum,
+        StaticModel = FlaskEmpty,
+        WorldStaticModel = FlaskEmpty,
+        DaysFresh = 1,
+        DaysTotallyRotten = 1,
+        ReplaceOnUse = Base.Flask,
+        UseEndurance = false,
+        Categories = Medical,
+        CustomContextMenu = Purifier,
+        Tags = Medical;Vaccine;Serum,
+        Tooltip = Tooltip_BloodSerum,
+    }
+
+    item AntiZombieVaccine
+    {
+        Weight = 0.1,
+        Type = Normal,
+        DisplayName = Vaccin Anti-Zombification,
+        Icon = AntiZombieVaccine,
+        StaticModel = Pills,
+        WorldStaticModel = Pills,
+        DaysFresh = 1,
+        DaysTotallyRotten = 1,
+        UseEndurance = false,
+        Categories = Medical,
+        CustomContextMenu = Administrer,
+        Tags = Medical;Vaccine;Final,
+        Tooltip = Tooltip_AntiZombieVaccine,
+    }
+
+    item Centrifuge
+    {
+        Weight = 5.0,
+        Type = Normal,
+        DisplayName = Centrifugeuse,
+        Icon = Centrifuge,
+        StaticModel = Radio,
+        WorldStaticModel = Radio,
+        Categories = Medical,
+        CanBandage = false,
+        BandageType = Standard,
+        Tags = Medical;Equipment,
+        Tooltip = Tooltip_Centrifuge,
+        MetalValue = 50,
+    }
+
+    item LabMicroscope
+    {
+        Weight = 3.0,
+        Type = Normal,
+        DisplayName = Microscope de Laboratoire,
+        Icon = Microscope,
+        StaticModel = Radio,
+        WorldStaticModel = Radio,
+        Categories = Medical,
+        Tags = Medical;Equipment,
+        Tooltip = Tooltip_LabMicroscope,
+        MetalValue = 30,
+    }
+
+    item ChemicalReagents
+    {
+        Weight = 0.5,
+        Type = Normal,
+        DisplayName = Produits Chimiques,
+        Icon = Pills,
+        StaticModel = Pills,
+        WorldStaticModel = Pills,
+        Categories = Medical,
+        Tags = Medical;Chemicals,
+        Tooltip = Tooltip_ChemicalReagents,
+        Uses = 5,
+        UseDelta = 0.2,
+    }
+
+    item DisinfectantAlcohol
+    {
+        Weight = 0.3,
+        Type = Normal,
+        DisplayName = Alcool Désinfectant,
+        Icon = AlcoholBottle,
+        StaticModel = WineEmpty,
+        WorldStaticModel = WineEmpty,
+        Categories = Medical,
+        Tags = Medical;Disinfectant,
+        Tooltip = Tooltip_DisinfectantAlcohol,
+        Uses = 10,
+        UseDelta = 0.1,
+        CanStoreWater = true,
+        ReplaceOnUseOn = WaterDrop,
+    }
+}

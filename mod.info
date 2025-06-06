@@ -1,0 +1,7 @@
+name=BiteMunity Vaccination System
+id=BiteMunityVaccination
+description=Advanced vaccination system for BiteMunity mod - Create vaccines from immune blood
+url=
+modversion=1.0.0
+pzversion=41.78
+require=BiteMunity

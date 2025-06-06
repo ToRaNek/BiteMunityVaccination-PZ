@@ -1,0 +1,70 @@
+module BiteMunityVaccination
+{
+    imports
+    {
+        Base
+    }
+
+    item MedicalSyringe
+    {
+        DistributionTable = {
+            MedicalStorageOutfit = 20,
+            HospitalSurgery = 30,
+            MedicalClinic = 25,
+            AmbulanceTrunk = 15,
+            FireStorageOutfit = 10,
+            DrugLabGuns = 5,
+            PoliceStorageOutfit = 8,
+            GigamartPharmacy = 12,
+            PharmacyCosmetics = 15,
+        }
+    }
+
+    item Centrifuge
+    {
+        DistributionTable = {
+            HospitalSurgery = 5,
+            MedicalClinic = 3,
+            OfficeDesk = 1,
+            CollegeChemistry = 8,
+            SchoolChemistry = 4,
+        }
+    }
+
+    item LabMicroscope
+    {
+        DistributionTable = {
+            HospitalSurgery = 8,
+            MedicalClinic = 5,
+            CollegeChemistry = 15,
+            SchoolChemistry = 10,
+            OfficeDesk = 2,
+        }
+    }
+
+    item ChemicalReagents
+    {
+        DistributionTable = {
+            MedicalStorageOutfit = 15,
+            HospitalSurgery = 20,
+            MedicalClinic = 18,
+            CollegeChemistry = 25,
+            SchoolChemistry = 15,
+            DrugLabGuns = 10,
+            GigamartPharmacy = 8,
+        }
+    }
+
+    item DisinfectantAlcohol
+    {
+        DistributionTable = {
+            MedicalStorageOutfit = 25,
+            HospitalSurgery = 30,
+            MedicalClinic = 28,
+            AmbulanceTrunk = 20,
+            GigamartPharmacy = 15,
+            PharmacyCosmetics = 18,
+            BathroomCabinet = 5,
+        }
+    }
+}

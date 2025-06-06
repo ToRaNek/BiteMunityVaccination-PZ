@@ -1,0 +1,67 @@
+module BiteMunityVaccination
+{
+    recipe Sterilize Syringe
+    {
+        BiteMunityVaccination.MedicalSyringe,
+        BiteMunityVaccination.DisinfectantAlcohol,
+
+        Result: BiteMunityVaccination.SterilizedSyringe,
+        Time: 30.0,
+        Category: Medical,
+        CanBeDoneFromFloor: false,
+        AnimNode: Disassemble,
+        Prop1: Item,
+        Prop2: Item,
+        Sound: ClothesRipping,
+    }
+
+    recipe Sterilize Syringe Alt
+    {
+        BiteMunityVaccination.MedicalSyringe,
+        Base.AlcoholWipes,
+
+        Result: BiteMunityVaccination.SterilizedSyringe,
+        Time: 20.0,
+        Category: Medical,
+        CanBeDoneFromFloor: false,
+        AnimNode: Disassemble,
+        Prop1: Item,
+        Prop2: Item,
+        Sound: ClothesRipping,
+    }
+
+    recipe Centrifuge Blood
+    {
+        BiteMunityVaccination.ImmuneBlood,
+        BiteMunityVaccination.Centrifuge,
+
+        Result: BiteMunityVaccination.BloodSerum,
+        Time: 120.0,
+        Category: Medical,
+        NeedToBeLearn: true,
+        CanBeDoneFromFloor: false,
+        AnimNode: Disassemble,
+        Prop1: Tools,
+        Prop2: Item,
+        RemoveResultItem: false,
+        Sound: DeviceInteraction,
+    }
+
+    recipe Purify Serum
+    {
+        BiteMunityVaccination.BloodSerum,
+        BiteMunityVaccination.LabMicroscope,
+        BiteMunityVaccination.ChemicalReagents,
+
+        Result: BiteMunityVaccination.AntiZombieVaccine,
+        Time: 180.0,
+        Category: Medical,
+        NeedToBeLearn: true,
+        CanBeDoneFromFloor: false,
+        AnimNode: Disassemble,
+        Prop1: Tools,
+        Prop2: Item,
+        RemoveResultItem: false,
+        Sound: DeviceInteraction,
+    }
+}

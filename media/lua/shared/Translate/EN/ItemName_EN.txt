@@ -1,0 +1,21 @@
+ItemName_EN = {
+    ItemName_BiteMunityVaccination.MedicalSyringe = "Medical Syringe",
+    ItemName_BiteMunityVaccination.SterilizedSyringe = "Sterilized Syringe",
+    ItemName_BiteMunityVaccination.ImmuneBlood = "Immune Blood",
+    ItemName_BiteMunityVaccination.BloodSerum = "Blood Serum",
+    ItemName_BiteMunityVaccination.AntiZombieVaccine = "Anti-Zombie Vaccine",
+    ItemName_BiteMunityVaccination.Centrifuge = "Centrifuge",
+    ItemName_BiteMunityVaccination.LabMicroscope = "Laboratory Microscope",
+    ItemName_BiteMunityVaccination.ChemicalReagents = "Chemical Reagents",
+    ItemName_BiteMunityVaccination.DisinfectantAlcohol = "Disinfectant Alcohol",
+
+    Tooltip_MedicalSyringe = "A medical syringe for blood extraction. Needs sterilization before use to reduce infection risks.",
+    Tooltip_SterilizedSyringe = "A sterilized medical syringe. Safe for blood extraction with minimal infection risk.",
+    Tooltip_ImmuneBlood = "Blood from a naturally immune person. Can be centrifuged to create serum. Expires in 24 hours.",
+    Tooltip_BloodSerum = "Centrifuged blood serum containing antibodies. Can be purified into a vaccine. Expires in 24 hours.",
+    Tooltip_AntiZombieVaccine = "A purified vaccine that may grant immunity to zombie infections. 20% success rate. Expires in 24 hours.",
+    Tooltip_Centrifuge = "Laboratory equipment for separating blood components. Required for creating blood serum.",
+    Tooltip_LabMicroscope = "Precision laboratory microscope. Required for vaccine purification process.",
+    Tooltip_ChemicalReagents = "Chemical compounds needed for vaccine purification. Limited uses.",
+    Tooltip_DisinfectantAlcohol = "Medical-grade alcohol for sterilizing equipment. Essential for safe procedures.",
+}
