@@ -1,6 +1,3 @@
-// media/scripts/recipes.txt
-// Recettes pour le système de vaccination - Version corrigée
-
 module BiteMunityVaccination
 {
     recipe Sterilize Syringe
