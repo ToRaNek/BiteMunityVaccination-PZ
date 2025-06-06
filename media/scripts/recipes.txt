@@ -49,6 +49,38 @@ module BiteMunityVaccination
         OnGiveXP: Doctor=5,
     }
 
+    recipe Make Disinfectant Alcohol
+    {
+        Base.WhiskeyFull,
+        Base.Bandage,
+
+        Result: BiteMunityVaccination.DisinfectantAlcohol,
+        Time: 60.0,
+        Category: Medical,
+        CanBeDoneFromFloor: false,
+        AnimNode: Disassemble,
+        Prop1: Item,
+        Prop2: Item,
+        Sound: ClothesRipping,
+        OnGiveXP: Doctor=5,
+    }
+
+    recipe Make Disinfectant Alcohol Alt
+    {
+        Base.Vodka,
+        Base.Bandage,
+
+        Result: BiteMunityVaccination.DisinfectantAlcohol,
+        Time: 60.0,
+        Category: Medical,
+        CanBeDoneFromFloor: false,
+        AnimNode: Disassemble,
+        Prop1: Item,
+        Prop2: Item,
+        Sound: ClothesRipping,
+        OnGiveXP: Doctor=5,
+    }
+
     recipe Centrifuge Blood
     {
         BiteMunityVaccination.ImmuneBlood,
@@ -84,37 +116,5 @@ module BiteMunityVaccination
         RemoveResultItem: false,
         Sound: DeviceInteraction,
         OnGiveXP: Doctor=15,
-    }
-
-    recipe Make Disinfectant Alcohol
-    {
-        Base.WhiskeyFull,
-        Base.Bandage,
-
-        Result: BiteMunityVaccination.DisinfectantAlcohol,
-        Time: 60.0,
-        Category: Medical,
-        CanBeDoneFromFloor: false,
-        AnimNode: Disassemble,
-        Prop1: Item,
-        Prop2: Item,
-        Sound: ClothesRipping,
-        OnGiveXP: Doctor=5,
-    }
-
-    recipe Make Disinfectant Alcohol Alt
-    {
-        Base.Vodka,
-        Base.Bandage,
-
-        Result: BiteMunityVaccination.DisinfectantAlcohol,
-        Time: 60.0,
-        Category: Medical,
-        CanBeDoneFromFloor: false,
-        AnimNode: Disassemble,
-        Prop1: Item,
-        Prop2: Item,
-        Sound: ClothesRipping,
-        OnGiveXP: Doctor=5,
     }
 }
