@@ -1,6 +1,3 @@
-// media/scripts/distributions.txt
-// Distribution des items dans le monde - Version corrigée
-
 module BiteMunityVaccination
 {
     imports
