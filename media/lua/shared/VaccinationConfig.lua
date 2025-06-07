@@ -1,5 +1,5 @@
 -- media/lua/shared/VaccinationConfig.lua
--- Configuration pour le système de vaccination - Version corrigée
+-- Configuration pour le système de vaccination - Version corrigée et optimisée
 
 VaccinationConfig = VaccinationConfig or {}
 
@@ -17,6 +17,8 @@ VaccinationConfig.REQUIRED_DOCTOR_LEVEL = 6
 -- Chances de succès
 VaccinationConfig.VACCINATION_SUCCESS_CHANCE = 20  -- 20%
 VaccinationConfig.INFECTION_CHANCE_DIRTY_TOOLS = 30  -- 30% si outils sales
+VaccinationConfig.SELF_EXTRACTION_INFECTION_CHANCE_CLEAN = 10  -- 10% en auto-extraction avec outils propres
+VaccinationConfig.SELF_EXTRACTION_INFECTION_CHANCE_DIRTY = 25  -- 25% en auto-extraction avec outils sales
 
 -- Durées des effets en heures
 VaccinationConfig.NEGATIVE_EFFECTS_DURATION = 24  -- 24 heures
@@ -25,6 +27,7 @@ VaccinationConfig.BLOOD_SERUM_EXPIRY = 24  -- 24 heures
 -- Conditions d'équipement
 VaccinationConfig.MIN_SYRINGE_CONDITION = 0.9  -- 90%
 VaccinationConfig.MIN_GLOVES_CONDITION = 0.8   -- 80%
+VaccinationConfig.MIN_SELF_SYRINGE_CONDITION = 0.5  -- 50% pour auto-extraction
 
 -- Messages
 VaccinationConfig.MESSAGES = {
@@ -34,6 +37,8 @@ VaccinationConfig.MESSAGES = {
     EXTRACTION_FAILED_NOT_IMMUNE = "Ce joueur n'est pas naturellement immunise.",
     EXTRACTION_FAILED_EQUIPMENT = "Equipement medical manquant ou en mauvais etat.",
     EXTRACTION_INFECTION = "Infection due a un equipement non sterilise !",
+    EXTRACTION_SELF_FAILED_EQUIPMENT = "Il me faut au moins une seringue en bon etat pour m'extraire du sang.",
+    EXTRACTION_SELF_SUCCESS = "Auto-extraction reussie. Je dois maintenant me reposer.",
 
     VACCINATION_SUCCESS = "Vaccination reussie ! Vous etes maintenant immunise.",
     VACCINATION_FAILED = "Je ne me sens pas bien... La vaccination a echoue.",
@@ -58,7 +63,7 @@ VaccinationConfig.NEGATIVE_EFFECTS = {
     {stat = "Weakness", value = true, duration = 24}
 }
 
--- Validation des équipements requis avec seringue stérilisée
+-- Équipement requis pour extraction par un médecin avec seringue stérilisée
 VaccinationConfig.REQUIRED_EXTRACTION_ITEMS = {
     {type = "Base.AlcoholWipes", condition = 0.1},
     {type = "BiteMunityVaccination.SterilizedSyringe", condition = 0.9},
@@ -72,10 +77,12 @@ VaccinationConfig.REQUIRED_EXTRACTION_ITEMS_RISKY = {
     {type = "Base.Gloves_Surgical", condition = 0.8}
 }
 
--- Équipement minimal pour auto-extraction (moins strict)
+-- Équipement minimal pour auto-extraction (beaucoup moins strict)
 VaccinationConfig.REQUIRED_SELF_EXTRACTION_ITEMS = {
-    {type = "BiteMunityVaccination.MedicalSyringe", condition = 0.5},
-    {type = "Base.AlcoholWipes", condition = 0.1, optional = true}
+    {type = "BiteMunityVaccination.MedicalSyringe", condition = 0.5, mandatory = true},
+    {type = "BiteMunityVaccination.SterilizedSyringe", condition = 0.5, mandatory = false, priority = true}, -- Préférable
+    {type = "Base.AlcoholWipes", condition = 0.1, mandatory = false, optional = true},
+    {type = "Base.Bandage", condition = 0.1, mandatory = false, optional = true} -- Pour arrêter le saignement
 }
 
 function VaccinationConfig.getGameTimeHours()
@@ -148,6 +155,7 @@ function VaccinationConfig.isEquipmentSterilized(player)
     return false
 end
 
+-- FONCTION CORRIGÉE : Vérifier si le joueur peut s'auto-extraire du sang
 function VaccinationConfig.canSelfExtract(player)
     if not player then
         return false
@@ -158,18 +166,76 @@ function VaccinationConfig.canSelfExtract(player)
         return false
     end
 
-    -- Vérifier l'équipement minimal pour auto-extraction
-    for i = 1, #VaccinationConfig.REQUIRED_SELF_EXTRACTION_ITEMS do
-        local item = VaccinationConfig.REQUIRED_SELF_EXTRACTION_ITEMS[i]
-        if not item.optional then
-            local foundItem = inventory:getFirstTypeRecurse(item.type)
-            if not foundItem or foundItem:getCondition() < item.condition then
-                return false
-            end
+    -- Vérifier d'abord si on a une seringue stérilisée (idéal)
+    local sterilizedSyringe = inventory:getFirstTypeRecurse("BiteMunityVaccination.SterilizedSyringe")
+    if sterilizedSyringe and sterilizedSyringe:getCondition() >= VaccinationConfig.MIN_SELF_SYRINGE_CONDITION then
+        return true
+    end
+
+    -- Sinon vérifier si on a une seringue normale (minimum requis)
+    local normalSyringe = inventory:getFirstTypeRecurse("BiteMunityVaccination.MedicalSyringe")
+    if normalSyringe and normalSyringe:getCondition() >= VaccinationConfig.MIN_SELF_SYRINGE_CONDITION then
+        return true
+    end
+
+    -- Aucune seringue appropriée trouvée
+    return false
+end
+
+-- NOUVELLE FONCTION : Vérifier la qualité de l'équipement d'auto-extraction
+function VaccinationConfig.getSelfExtractionQuality(player)
+    if not player then
+        return "none"
+    end
+
+    local inventory = player:getInventory()
+    if not inventory then
+        return "none"
+    end
+
+    local score = 0
+    local details = {}
+
+    -- Vérifier seringue stérilisée (meilleur)
+    local sterilizedSyringe = inventory:getFirstTypeRecurse("BiteMunityVaccination.SterilizedSyringe")
+    if sterilizedSyringe and sterilizedSyringe:getCondition() >= VaccinationConfig.MIN_SELF_SYRINGE_CONDITION then
+        score = score + 3
+        details.syringe = "sterilized"
+    else
+        -- Vérifier seringue normale
+        local normalSyringe = inventory:getFirstTypeRecurse("BiteMunityVaccination.MedicalSyringe")
+        if normalSyringe and normalSyringe:getCondition() >= VaccinationConfig.MIN_SELF_SYRINGE_CONDITION then
+            score = score + 1
+            details.syringe = "normal"
+        else
+            return "none" -- Pas de seringue utilisable
         end
     end
 
-    return true
+    -- Vérifier les lingettes alcoolisées
+    local wipes = inventory:getFirstTypeRecurse("Base.AlcoholWipes")
+    if wipes and wipes:getCondition() >= 0.1 then
+        score = score + 1
+        details.wipes = true
+    end
+
+    -- Vérifier les bandages pour après
+    local bandage = inventory:getFirstTypeRecurse("Base.Bandage")
+    if bandage and bandage:getCondition() >= 0.1 then
+        score = score + 0.5
+        details.bandage = true
+    end
+
+    -- Déterminer la qualité globale
+    if score >= 4 then
+        return "excellent" -- Seringue stérilisée + lingettes + bandages
+    elseif score >= 3 then
+        return "good" -- Seringue stérilisée ou seringue normale + lingettes
+    elseif score >= 1 then
+        return "poor" -- Juste une seringue
+    else
+        return "none"
+    end
 end
 
 function VaccinationConfig.hasSterilizedEquipment(player)
@@ -183,5 +249,51 @@ function VaccinationConfig.hasSterilizedEquipment(player)
     end
 
     local sterilizedSyringe = inventory:getFirstTypeRecurse("BiteMunityVaccination.SterilizedSyringe")
-    return sterilizedSyringe and sterilizedSyringe:getCondition() >= 0.9
+    return sterilizedSyringe and sterilizedSyringe:getCondition() >= VaccinationConfig.MIN_SELF_SYRINGE_CONDITION
+end
+
+-- NOUVELLE FONCTION : Obtenir un message d'aide pour l'auto-extraction
+function VaccinationConfig.getSelfExtractionHelpMessage(player)
+    if not player then
+        return "Impossible de vérifier l'équipement."
+    end
+
+    local inventory = player:getInventory()
+    if not inventory then
+        return "Aucun inventaire disponible."
+    end
+
+    local messages = {}
+    
+    -- Vérifier seringues
+    local sterilizedSyringe = inventory:getFirstTypeRecurse("BiteMunityVaccination.SterilizedSyringe")
+    local normalSyringe = inventory:getFirstTypeRecurse("BiteMunityVaccination.MedicalSyringe")
+    
+    if not sterilizedSyringe and not normalSyringe then
+        table.insert(messages, "❌ Seringue requise (médicale ou stérilisée)")
+    elseif sterilizedSyringe and sterilizedSyringe:getCondition() >= VaccinationConfig.MIN_SELF_SYRINGE_CONDITION then
+        table.insert(messages, "✅ Seringue stérilisée disponible")
+    elseif normalSyringe and normalSyringe:getCondition() >= VaccinationConfig.MIN_SELF_SYRINGE_CONDITION then
+        table.insert(messages, "⚠️ Seringue normale disponible (risque d'infection)")
+    else
+        table.insert(messages, "❌ Seringues en trop mauvais état")
+    end
+
+    -- Vérifier les lingettes
+    local wipes = inventory:getFirstTypeRecurse("Base.AlcoholWipes")
+    if wipes and wipes:getCondition() >= 0.1 then
+        table.insert(messages, "✅ Lingettes alcoolisées disponibles")
+    else
+        table.insert(messages, "⚠️ Pas de lingettes (risque d'infection accru)")
+    end
+
+    -- Vérifier les bandages
+    local bandage = inventory:getFirstTypeRecurse("Base.Bandage")
+    if bandage and bandage:getCondition() >= 0.1 then
+        table.insert(messages, "✅ Bandages disponibles")
+    else
+        table.insert(messages, "⚠️ Pas de bandages (difficile d'arrêter le saignement)")
+    end
+
+    return table.concat(messages, "\n")
 end
